@@ -5,7 +5,8 @@ from enums import JobStatuses
 
 
 class Job:
-    def __init__(self, func: Callable, start_at="", max_working_time=-1, tries=0, dependencies=None) -> None:
+    def __init__(self, name: str, func: Callable, start_at="", max_working_time=-1, tries=0, dependencies=None) -> None:
+        self.name = name
         self.func = func
         self.start_at = start_at
         self.max_working_time = max_working_time

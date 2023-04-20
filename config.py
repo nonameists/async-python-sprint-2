@@ -10,3 +10,5 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger()
+
+PICKLE_DUMP_FILENAME = "jobs.pickle"

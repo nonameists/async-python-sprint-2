@@ -12,3 +12,5 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 PICKLE_DUMP_FILENAME = "jobs.pickle"
+
+DATE_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"

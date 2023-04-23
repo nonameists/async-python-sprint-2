@@ -33,7 +33,7 @@ class Job:
                 # check if we need restart job function
                 if self.tries < 0:
                     self.status = JobStatuses.FAILED
-                    break
+                    raise
 
     def _convert_to_datetime(self, date: Optional[str]) -> Optional[float]:
         if date is None:

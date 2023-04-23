@@ -32,6 +32,11 @@ def timeout_job():
 
 
 @pytest.fixture()
+def create_file_job():
+    return Job(name="create_file_task", func=test_create_file)
+
+
+@pytest.fixture()
 def lambda_jobs():
     return [
         Job(name="Test lambda_1 job", func=lambda: "hello job_1!"),
@@ -49,3 +54,14 @@ def timeout_func():
 
 def error_func():
     raise Exception('AAAAAAA')
+
+
+
+def test_create_file():
+    try:
+        with open(TEST_NEW_FILE_PATH, "w") as file:
+            file.write("Test file hello")
+        print(f"Файл {TEST_NEW_FILE_PATH} создан")
+    except Exception as error:
+        print(f"Ошибка при создании файла {TEST_NEW_FILE_PATH}: {error}")
+        raise

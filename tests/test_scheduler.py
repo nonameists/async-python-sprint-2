@@ -31,6 +31,7 @@ class TestScheduler(BaseTearDown):
         scheduler.schedule(create_file_job)
         scheduler.run()
         assert create_file_job in scheduler.completed_jobs
+        assert os.path.exists(TEST_NEW_FILE_PATH)
 
 
     def test_failed_job(self, scheduler, job_with_exception):

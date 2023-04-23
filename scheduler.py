@@ -1,4 +1,5 @@
 import pickle
+from typing import List
 
 from config import logger, PICKLE_DUMP_FILENAME
 from enums import JobStatuses
@@ -30,12 +31,11 @@ class Scheduler:
             try:
                 job.status = JobStatuses.RUNNING
                 self.running_jobs.append(job)
+                # check and run dependencies if exists
                 if job.dependencies:
-                    for d_job in job.dependencies:
-                        d_job.status = JobStatuses.RUNNING
-                        self.executor.send(d_job)
-                else:
-                    self.executor.send(job)
+                    self._run_dependencies(job.dependencies)
+
+                self.executor.send(job)
                 job.status = JobStatuses.COMPLETED
                 self.running_jobs.remove(job)
                 self.completed_jobs.append(job)
@@ -75,4 +75,18 @@ class Scheduler:
             self.pending_jobs.append(job)
         else:
             raise PendingLimitException()
+
+    def _run_dependencies(self, jobs_dependencies: List[Job]):
+        """Private method run job dependencies and set job status, remove/add from job lists."""
+        while jobs_dependencies:
+            d_job = jobs_dependencies.pop()
+            d_job.status = JobStatuses.RUNNING
+            self.running_jobs.append(d_job)
+            self.executor.send(d_job)
+
+            d_job.status = JobStatuses.COMPLETED
+            self.running_jobs.remove(d_job)
+            self.completed_jobs.append(d_job)
+
+
 

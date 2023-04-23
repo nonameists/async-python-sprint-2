@@ -21,7 +21,7 @@ class Job:
 
     def run(self) -> None:
         """Public method tu run Job function."""
-        while self.tries >= 0 and self.status != "stopped":
+        while self.tries >= 0 and self.status != JobStatuses.COMPLETED:
             try:
                 logger.info(f"Start {self.func.__name__}")
                 self.func()

@@ -17,7 +17,7 @@ class ExecutorService:
             # receive job object
             job = yield
             # check if we need to start job function with delay
-            if job.start_at > datetime.now().timestamp():
+            if job.start_at is not None and job.start_at > datetime.now().timestamp():
                 delay_executor = self._execute_with_delay()
                 delay_executor.send(job)
             elif job.max_working_time > 0:
@@ -31,6 +31,7 @@ class ExecutorService:
         """Method receive job with delay."""
         while True:
             delayed_job = yield
+            logger.info(f"Execute delayed job: {delayed_job.name}")
             time_thread = Timer(interval=delayed_job.start_at.timestamp() - time.time(), function=delayed_job.run)
             time_thread.start()
             time_thread.join()
@@ -40,6 +41,7 @@ class ExecutorService:
         """Method receive job with maximum working time."""
         while True:
             max_time_job = yield
+            logger.info(f"Execute job with timeout: {max_time_job.name}")
             max_time_process = Process(target=max_time_job.run)
             max_time_process.start()
             max_time_process.join(timeout=max_time_job.max_working_time)

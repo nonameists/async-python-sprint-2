@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Optional, List, Coroutine
 
 from config import logger, DATE_TIME_FORMAT
 from enums import JobStatuses
@@ -7,9 +7,13 @@ from enums import JobStatuses
 
 class Job:
     def __init__(
-            self, name: str, func: Callable,
-            start_at: Optional[str] = None,
-            max_working_time=-1, tries=0, dependencies=None
+        self,
+        name: str,
+        func: Coroutine,
+        start_at: Optional[str] = None,
+        max_working_time: int = -1,
+        tries: int = 0,
+        dependencies: Optional[List["Job"]] = None,
     ) -> None:
         self.name = name
         self.func = func
@@ -23,12 +27,16 @@ class Job:
         """Public method tu run Job function."""
         while self.tries >= 0 and self.status != JobStatuses.COMPLETED:
             try:
-                logger.info(f"Start {self.func.__name__}")
-                self.func()
+                logger.info(f"Start {self.name}")
+                self.func.send(None)
                 self.status = JobStatuses.COMPLETED
-                logger.info(f"Function {self.func.__name__} successfully finished.")
+                logger.info(
+                    f"Function {self.name} successfully finished."
+                )
             except Exception as error:
-                logger.error(f"Function {self.func.__name__} failed with error {error}.")
+                logger.error(
+                    f"Function {self.name} failed with error {error}."
+                )
                 self.tries = -1
                 # check if we need restart job function
                 if self.tries < 0:
@@ -41,5 +49,7 @@ class Job:
         try:
             return datetime.strptime(date, DATE_TIME_FORMAT).timestamp()
         except ValueError:
-            logger.error(f"Receive unsupported date format% {date}. Date_time format should be: {DATE_TIME_FORMAT}")
+            logger.error(
+                f"Receive unsupported date format% {date}. Date_time format should be: {DATE_TIME_FORMAT}"
+            )
             return None

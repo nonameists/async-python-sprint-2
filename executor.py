@@ -1,7 +1,6 @@
 import time
 from datetime import datetime
-from multiprocessing import Process
-from threading import Timer
+from threading import Timer, Thread
 from typing import Generator
 
 from config import logger
@@ -42,11 +41,10 @@ class ExecutorService:
         while True:
             max_time_job = yield
             logger.info(f"Execute job with timeout: {max_time_job.name}")
-            max_time_process = Process(target=max_time_job.run)
+            max_time_process = Thread(target=max_time_job.run)
             max_time_process.start()
             max_time_process.join(timeout=max_time_job.max_working_time)
 
             if max_time_process.is_alive():
-                max_time_process.terminate()
                 logger.error(f"Job: {max_time_process.name} was terminated because of timeout.")
                 raise JobTimeoutException()
